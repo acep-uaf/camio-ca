@@ -85,7 +85,7 @@ ca_type=$(echo $ca_json | jq '.TYPE' | sed -r 's/"//g')
 ca_name=$(echo $ca_json | jq '.PKI_NAME' | sed -r 's/"//g')
 ca_dns=$(echo $ca_json | jq '.DNS_NAME' | sed -r 's/"//g')
 ca_ipport=$(echo $ca_json | jq '.IP_PORT' | sed -r 's/"//g')
-ca_provisioner=$(echo $ca_json | jq '.CA_PROVISIONER' | sed -r 's/"//g')
+ca_email=$(echo $ca_json | jq '.CA_EMAIL' | sed -r 's/"//g')
 ca_password=$(echo $ca_json | jq '.PASSWORD' | sed -r 's/"//g')
 
 echo "CA Directory:      $ca_dir"
@@ -98,7 +98,7 @@ echo "CA Type:           $ca_type"
 echo "CA Name:           $ca_name"
 echo "CA DNS Name:       $ca_dns"
 echo "CA IP Port:        $ca_ipport"
-echo "CA Provisioner:    $ca_provisioner"
+echo "CA Provisioner:    $ca_email"
 echo "CA Password:       $ca_password"
 echo ""
 
@@ -136,7 +136,7 @@ mkdir -p $ca_dir
 ## Initialize the CA
 cd $ca_dir
 
-step ca init --name "$ca_name" --dns "$ca_dns" --address ":$ca_ipport" --provisioner "$ca_provisioner" --password-file <(echo -n "$ca_password") --ssh
+step ca init --name "$ca_name" --dns "$ca_dns" --address ":$ca_ipport" --provisioner "$ca_email" --password-file <(echo -n "$ca_password") --ssh
 
 
 # Firewall Configuration
