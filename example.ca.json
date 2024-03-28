@@ -1,0 +1,10 @@
+{
+  "CA_DIR": "/etc/step-ca",
+  "NETWORKS": ["CIDR1", "CIDR2"],
+  "TYPE": "Standalone",
+  "PKI_NAME": "MYCA",
+  "DNS_NAME": "ca.example.com",
+  "IP_PORT": "IP_ADDR:443",
+  "CA_PROVISIONER": "ca-prov@example.com",
+  "PASSWORD": "PASSWORD"
+}

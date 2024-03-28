@@ -1,0 +1,14 @@
+[Unit]
+Description=step-ca service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/step-ca /etc/step-ca/config/ca.json --password-file=/etc/step-ca/pwfile
+User=root
+Group=root
+Type=simple
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
