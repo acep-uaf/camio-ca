@@ -181,15 +181,15 @@ systemctl status step-ca
 
 # NGINX
 echo "INFO: Configuring NGINX"
-cp $ca_dir/certs/root_ca.crt /var/www/html/$ca_dns_ca.crt
+cp $ca_dir/certs/root_ca.crt "/var/www/html/$ca_dns.crt"
 
 # Set permissions
 echo "INFO: Setting permissions"
-chmod 444 /var/www/html/$ca_dns_ca.crt
+chmod 444 /var/www/html/$ca_dns.crt
 
 # Summary
 echo "The CA has been successfully setup."
 echo "The CA is accessible at https://$ca_ipport"
-echo "The CA Root Certificate can be found at http://$ca_dns/$ca_dns_ca.crt"
+echo "The CA Root Certificate can be found at http://$ca_dns/$ca_dns.crt"
 
 # ==================== END CA SETUP SCRIPT ====================
