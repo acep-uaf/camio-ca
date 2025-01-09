@@ -199,9 +199,9 @@ if [ "$enable_acme" == "true" ]; then
   echo ""
 
   # Add the ACME provisioner
-  echo "RUNNING: STEPPATH=$ca_dir step ca provisioner add ACME-$ca_org --type ACME"
+  echo "RUNNING: STEP_ROOT=$ca_dir/certs/root_ca.crt STEPPATH=$ca_dir step ca provisioner add ACME-$ca_org --type ACME"
   echo ""
-  STEPPATH=$ca_dir step ca provisioner add "ACME-$ca_org" --type ACME
+  STEP_ROOT=$ca_dir/certs/root_ca.crt STEPPATH=$ca_dir step ca provisioner add "ACME-$ca_org" --type ACME
   echo ""
 fi
 
