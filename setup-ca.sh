@@ -137,6 +137,19 @@ else
 fi
 
 # Configure the CA
+# Check if the CA directory exists
+if [ -d $ca_dir ]; then
+  echo "INFO: CA directory already exists"
+
+  read -p "Would you like to remove it? [y/N]" ans
+
+  if [[ "$ans" == "y" || "$ans" == "Y" ]]; then
+    echo "INFO: Removing CA directory"
+    rm -rf $ca_dir
+  else
+    echo "INFO: Not removing CA directory"
+  fi
+fi
 
 ## Make the CA directory
 echo "INFO: Creating CA directory: $ca_dir"
