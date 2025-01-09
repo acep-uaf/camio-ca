@@ -146,9 +146,12 @@ mkdir -p $ca_dir
 echo "INFO: Initializing CA"
 cd $ca_dir
 
+## Check Diretory Location
+pwd
+
 echo "INFO: Setting up CA"
-echo "RUNNING: step ca init --name $ca_name --dns $ca_dns --address $ca_ipport --provisioner $ca_email --password-file <(echo -n $ca_password) --ssh"
-step ca init --name "$ca_name" --dns "$ca_dns" --address "$ca_ipport" --provisioner "$ca_email" --password-file <(echo -n "$ca_password") --ssh
+echo "RUNNING: STEPPATH=$ca_dir step ca init --name $ca_name --dns $ca_dns --address $ca_ipport --provisioner $ca_email --password-file <(echo -n $ca_password) --ssh"
+STEPPATH=$ca_dir step ca init --name "$ca_name" --dns "$ca_dns" --address "$ca_ipport" --provisioner "$ca_email" --password-file <(echo -n "$ca_password") --ssh
 
 
 # Firewall Configuration
