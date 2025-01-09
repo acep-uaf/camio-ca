@@ -166,6 +166,11 @@ done
 ufw enable
 
 # SystemD
+
+## Create the password file
+echo $ca_password > $ca_dir/pwfile
+chmod 600 $ca_dir/pwfile
+
 ## Create a systemd service for the CA
 echo "INFO: Creating systemd service for CA"
 cp step-ca.service /etc/systemd/system/step-ca.service
@@ -174,7 +179,7 @@ echo "INFO: Enabling and starting CA"
 systemctl enable step-ca
 
 echo "INFO: Starting CA"
-systemctl start step-ca
+systemctl restart step-ca
 
 echo "INFO: Status of CA"
 systemctl status step-ca
@@ -190,6 +195,7 @@ chmod 444 /var/www/html/$ca_dns.crt
 # Summary
 echo "The CA has been successfully setup."
 echo "The CA is accessible at https://$ca_ipport"
-echo "The CA Root Certificate can be found at http://$ca_dns/$ca_dns.crt"
+echo "The CA Root Certificate can be found at: http://$ca_dns/$ca_dns.crt"
+echo "                                     or: http://$ip_addr/$ca_dns.crt"
 
 # ==================== END CA SETUP SCRIPT ====================
