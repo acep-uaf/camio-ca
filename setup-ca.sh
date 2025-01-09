@@ -82,11 +82,13 @@ fi
 ca_dir=$(echo $ca_json | jq '.CA_DIR' | sed -r 's/"//g')
 ca_nets=$(echo $ca_json | jq -r '.NETWORKS[]')
 ca_type=$(echo $ca_json | jq '.TYPE' | sed -r 's/"//g')
+ca_org=$(echo $ca_json | jq '.ORGANIZATION' | sed -r 's/"//g')
 ca_name=$(echo $ca_json | jq '.PKI_NAME' | sed -r 's/"//g')
 ca_dns=$(echo $ca_json | jq '.DNS_NAME' | sed -r 's/"//g')
 ca_ipport=$(echo $ca_json | jq '.IP_PORT' | sed -r 's/"//g')
 ca_email=$(echo $ca_json | jq '.CA_EMAIL' | sed -r 's/"//g')
 ca_password=$(echo $ca_json | jq '.PASSWORD' | sed -r 's/"//g')
+enable_acme=$(echo $ca_json | jq '.ENABLE_ACME' | sed -r 's/"//g')
 
 echo "CA Directory:      $ca_dir"
 # Iterate over each CIDR
@@ -96,10 +98,12 @@ for CIDR in $ca_nets; do
 done
 echo "CA Type:           $ca_type"
 echo "CA Name:           $ca_name"
+echo "CA Organization:   $ca_org"
 echo "CA DNS Name:       $ca_dns"
 echo "CA IP Port:        $ca_ipport"
 echo "CA Provisioner:    $ca_email"
 echo "CA Password:       $ca_password"
+echo "Enable ACME:       $enable_acme"
 echo ""
 
 echo "WARNING:"
@@ -155,16 +159,26 @@ fi
 echo "INFO: Creating CA directory: $ca_dir"
 mkdir -p $ca_dir
 
-## Initialize the CA
-# echo "INFO: Initializing CA"
-# cd $ca_dir
 
-## Check Diretory Location
-# pwd
+## Create the password file
+echo $ca_password > $ca_dir/pwfile
+chmod 600 $ca_dir/pwfile
+
+## Initialize the CA
 
 echo "INFO: Setting up CA"
-echo "RUNNING: STEPPATH=$ca_dir step ca init --name $ca_name --dns $ca_dns --address $ca_ipport --provisioner $ca_email --password-file <(echo -n $ca_password) --ssh"
-STEPPATH=$ca_dir step ca init --name "$ca_name" --dns "$ca_dns" --address "$ca_ipport" --provisioner "$ca_email" --password-file <(echo -n "$ca_password") --ssh
+# echo "RUNNING: STEPPATH=$ca_dir step ca init --name $ca_name --dns $ca_dns --address $ca_ipport --provisioner $ca_email --password-file <(echo -n $ca_password) --ssh"
+# STEPPATH=$ca_dir step ca init --name "$ca_name" --dns "$ca_dns" --address "$ca_ipport" --provisioner "$ca_email" --password-file <(echo -n "$ca_password") --ssh
+echo "RUNNING: STEPPATH=$ca_dir step ca init --name $ca_name --dns $ca_dns --address $ca_ipport --provisioner $ca_email --password-file $ca_dir/pwfile --ssh"
+STEPPATH=$ca_dir step ca init --name "$ca_name" --dns "$ca_dns" --address "$ca_ipport" --provisioner "$ca_email" --password-file "$ca_dir/pwfile" --deployment-type="$ca_type" --ssh
+
+# ACME Configuration
+if [ "$enable_acme" == "true" ]; then
+  echo "INFO: Adding ACME Provisioner"
+
+  # Add the ACME provisioner
+  STEPPATH=$ca_dir step ca provisioner add "ACME-$ca_org" --type ACME
+fi
 
 
 # Firewall Configuration
@@ -178,12 +192,7 @@ done
 ## Enable UFW
 ufw enable
 
-# SystemD
-
-## Create the password file
-echo $ca_password > $ca_dir/pwfile
-chmod 600 $ca_dir/pwfile
-
+# Step CA SystemD
 ## Create a systemd service for the CA
 echo "INFO: Creating systemd service for CA"
 cp step-ca.service /etc/systemd/system/step-ca.service
