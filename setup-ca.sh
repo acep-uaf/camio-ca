@@ -145,7 +145,7 @@ echo ""
 # Check if the CA directory exists
 if [ -d $ca_dir ]; then
   echo ""
-  echo "WARNING: CA directory already exists"
+  echo "WARNING: CA directory [ $ca_dir ] already exists"
 
   read -p "Would you like to remove it? [y/N]" ans
 
@@ -179,7 +179,8 @@ echo ""
 STEPPATH=$ca_dir step ca init --name "$ca_name" --dns "$ca_dns" --address "$ca_ipport" --provisioner "$ca_email" --password-file "$ca_dir/pwfile" --deployment-type="$ca_type" --ssh
 
 ## Install Root CA Cert Locally
-echo "INFO: Installing Root CA Cert Locally"
+echo ""
+echo "INFO: Installing Root CA Cert Locally in /usr/local/share/ca-certificates"
 echo ""
 
 cp $ca_dir/certs/root_ca.crt /usr/local/share/ca-certificates/step-ca-root.crt
@@ -198,7 +199,10 @@ if [ "$enable_acme" == "true" ]; then
   echo ""
 
   # Add the ACME provisioner
+  echo "RUNNING: STEPPATH=$ca_dir step ca provisioner add ACME-$ca_org --type ACME"
+  echo ""
   STEPPATH=$ca_dir step ca provisioner add "ACME-$ca_org" --type ACME
+  echo ""
 fi
 
 
