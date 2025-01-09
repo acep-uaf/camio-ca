@@ -139,6 +139,7 @@ else
   wget https://dl.smallstep.com/certificates/docs-ca-install/latest/step-ca_amd64.deb || { echo "Failed to download step-ca_amd64.deb"; exit 1; }
   dpkg -i step-cli_amd64.deb step-ca_amd64.deb || { echo "Failed to install packages"; exit 1; }
 fi
+echo ""
 
 # Configure the CA
 # Check if the CA directory exists
@@ -154,10 +155,13 @@ if [ -d $ca_dir ]; then
   else
     echo "INFO: Not removing CA directory"
   fi
+  echo ""
 fi
+
 
 ## Make the CA directory
 echo "INFO: Creating CA directory: $ca_dir"
+echo ""
 mkdir -p $ca_dir
 
 
@@ -171,16 +175,19 @@ echo "INFO: Setting up CA"
 # echo "RUNNING: STEPPATH=$ca_dir step ca init --name $ca_name --dns $ca_dns --address $ca_ipport --provisioner $ca_email --password-file <(echo -n $ca_password) --ssh"
 # STEPPATH=$ca_dir step ca init --name "$ca_name" --dns "$ca_dns" --address "$ca_ipport" --provisioner "$ca_email" --password-file <(echo -n "$ca_password") --ssh
 echo "RUNNING: STEPPATH=$ca_dir step ca init --name $ca_name --dns $ca_dns --address $ca_ipport --provisioner $ca_email --password-file $ca_dir/pwfile --ssh"
+echo ""
 STEPPATH=$ca_dir step ca init --name "$ca_name" --dns "$ca_dns" --address "$ca_ipport" --provisioner "$ca_email" --password-file "$ca_dir/pwfile" --deployment-type="$ca_type" --ssh
 
 ## Install Root CA Cert Locally
 echo "INFO: Installing Root CA Cert Locally"
+echo ""
 
 cp $ca_dir/certs/root_ca.crt /usr/local/share/ca-certificates/step-ca-root.crt
 update-ca-certificates
 
 ### Verify Root CA Cert
 echo "INFO: Verifying Root CA Cert"
+echo ""
 openssl verify -CAfile /usr/local/share/ca-certificates/step-ca-root.crt $ca_dir/certs/root_ca.crt
 
 echo "INFO: CA Setup Complete"
@@ -188,6 +195,7 @@ echo "INFO: CA Setup Complete"
 ## ACME Configuration
 if [ "$enable_acme" == "true" ]; then
   echo "INFO: Adding ACME Provisioner"
+  echo ""
 
   # Add the ACME provisioner
   STEPPATH=$ca_dir step ca provisioner add "ACME-$ca_org" --type ACME
@@ -196,6 +204,8 @@ fi
 
 # Firewall Configuration
 ## Allow SSH, HTTP, and HTTPS from the local network
+echo "INFO: Configuring UFW"
+echo ""
 for CIDR in $ca_nets; do
     ufw allow from $CIDR to any port 22 proto tcp
     ufw allow from $CIDR to any port 80 proto tcp
@@ -203,28 +213,36 @@ for CIDR in $ca_nets; do
 done
 
 ## Enable UFW
+echo "INFO: Enabling UFW"
+echo ""
 ufw enable
 
 # Step CA SystemD
 ## Create a systemd service for the CA
 echo "INFO: Creating systemd service for CA"
+echo ""
 cp step-ca.service /etc/systemd/system/step-ca.service
 
 echo "INFO: Enabling and starting CA"
+echo ""
 systemctl enable step-ca
 
 echo "INFO: Starting CA"
+echo ""
 systemctl restart step-ca
 
 echo "INFO: Status of CA"
+echo ""
 systemctl status step-ca
 
 # NGINX
 echo "INFO: Configuring NGINX"
+echo ""
 cp $ca_dir/certs/root_ca.crt "/var/www/html/$ca_dns.crt"
 
 # Set permissions
 echo "INFO: Setting permissions"
+echo ""
 chmod 444 /var/www/html/$ca_dns.crt
 
 # Summary
@@ -232,5 +250,6 @@ echo "The CA has been successfully setup."
 echo "The CA is accessible at https://$ca_ipport"
 echo "The CA Root Certificate can be found at: http://$ca_dns/$ca_dns.crt"
 echo "                                     or: http://$ip_addr/$ca_dns.crt"
+echo ""
 
 # ==================== END CA SETUP SCRIPT ====================
