@@ -193,19 +193,6 @@ openssl verify -CAfile /usr/local/share/ca-certificates/step-ca-root.crt $ca_dir
 
 echo "INFO: CA Setup Complete"
 
-## ACME Configuration
-if [ "$enable_acme" == "true" ]; then
-  echo "INFO: Adding ACME Provisioner"
-  echo ""
-
-  # Add the ACME provisioner
-  echo "RUNNING: STEP_ROOT=$ca_dir/certs/root_ca.crt STEPPATH=$ca_dir step ca provisioner add ACME-$ca_org --type ACME"
-  echo ""
-  STEP_ROOT=$ca_dir/certs/root_ca.crt STEPPATH=$ca_dir step ca provisioner add "ACME-$ca_org" --type ACME
-  echo ""
-fi
-
-
 # Firewall Configuration
 ## Allow SSH, HTTP, and HTTPS from the local network
 echo "INFO: Configuring UFW"
@@ -238,6 +225,20 @@ systemctl restart step-ca
 echo "INFO: Status of CA"
 echo ""
 systemctl status step-ca
+
+
+## ACME Configuration
+if [ "$enable_acme" == "true" ]; then
+  echo "INFO: Adding ACME Provisioner"
+  echo ""
+
+  # Add the ACME provisioner
+  echo "RUNNING: STEP_ROOT=$ca_dir/certs/root_ca.crt STEPPATH=$ca_dir step ca provisioner add ACME-$ca_org --type ACME"
+  echo ""
+  STEP_ROOT=$ca_dir/certs/root_ca.crt STEPPATH=$ca_dir step ca provisioner add "ACME-$ca_org" --type ACME
+  echo ""
+fi
+
 
 # NGINX
 echo "INFO: Configuring NGINX"
