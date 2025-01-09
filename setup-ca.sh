@@ -143,7 +143,8 @@ fi
 # Configure the CA
 # Check if the CA directory exists
 if [ -d $ca_dir ]; then
-  echo "INFO: CA directory already exists"
+  echo ""
+  echo "WARNING: CA directory already exists"
 
   read -p "Would you like to remove it? [y/N]" ans
 
@@ -172,7 +173,19 @@ echo "INFO: Setting up CA"
 echo "RUNNING: STEPPATH=$ca_dir step ca init --name $ca_name --dns $ca_dns --address $ca_ipport --provisioner $ca_email --password-file $ca_dir/pwfile --ssh"
 STEPPATH=$ca_dir step ca init --name "$ca_name" --dns "$ca_dns" --address "$ca_ipport" --provisioner "$ca_email" --password-file "$ca_dir/pwfile" --deployment-type="$ca_type" --ssh
 
-# ACME Configuration
+## Install Root CA Cert Locally
+echo "INFO: Installing Root CA Cert Locally"
+
+cp $ca_dir/certs/root_ca.crt /usr/local/share/ca-certificates/step-ca-root.crt
+update-ca-certificates
+
+### Verify Root CA Cert
+echo "INFO: Verifying Root CA Cert"
+openssl verify -CAfile /usr/local/share/ca-certificates/step-ca-root.crt $ca_dir/certs/root_ca.crt
+
+echo "INFO: CA Setup Complete"
+
+## ACME Configuration
 if [ "$enable_acme" == "true" ]; then
   echo "INFO: Adding ACME Provisioner"
 
