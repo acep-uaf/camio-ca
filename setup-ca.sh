@@ -143,11 +143,11 @@ echo "INFO: Creating CA directory: $ca_dir"
 mkdir -p $ca_dir
 
 ## Initialize the CA
-echo "INFO: Initializing CA"
-cd $ca_dir
+# echo "INFO: Initializing CA"
+# cd $ca_dir
 
 ## Check Diretory Location
-pwd
+# pwd
 
 echo "INFO: Setting up CA"
 echo "RUNNING: STEPPATH=$ca_dir step ca init --name $ca_name --dns $ca_dns --address $ca_ipport --provisioner $ca_email --password-file <(echo -n $ca_password) --ssh"
