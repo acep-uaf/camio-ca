@@ -5,6 +5,6 @@
   "PKI_NAME": "MYCA",
   "DNS_NAME": "ca.example.com",
   "IP_PORT": "IP_ADDR:443",
-  "CA_PROVISIONER": "ca-prov@example.com",
+  "CA_EMAIL": "ca-prov@example.com",
   "PASSWORD": "PASSWORD"
 }

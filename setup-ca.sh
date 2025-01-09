@@ -123,20 +123,31 @@ set -e
 
 trap 'echo "An error occurred. Exiting..." >&2' ERR
 
-wget https://dl.smallstep.com/cli/docs-ca-install/latest/step-cli_amd64.deb || { echo "Failed to download step-cli_amd64.deb"; exit 1; }
-wget https://dl.smallstep.com/certificates/docs-ca-install/latest/step-ca_amd64.deb || { echo "Failed to download step-ca_amd64.deb"; exit 1; }
-dpkg -i step-cli_amd64.deb step-ca_amd64.deb || { echo "Failed to install packages"; exit 1; }
+# Check if step-cli_amd64.deb and step-ca_amd64.deb are installed
+step_cli_deb=$(dpkg -l | grep step-cli)
+step_ca_deb=$(dpkg -l | grep step-ca)
 
+if [ -n "$step_cli_deb" ] && [ -n "$step_ca_deb" ]; then
+  echo "INFO: step-cli_amd64.deb and step-ca_amd64.deb are already installed."
+else
+  echo "INFO: Installing step-cli_amd64.deb and step-ca_amd64.deb"
+  wget https://dl.smallstep.com/cli/docs-ca-install/latest/step-cli_amd64.deb || { echo "Failed to download step-cli_amd64.deb"; exit 1; }
+  wget https://dl.smallstep.com/certificates/docs-ca-install/latest/step-ca_amd64.deb || { echo "Failed to download step-ca_amd64.deb"; exit 1; }
+  dpkg -i step-cli_amd64.deb step-ca_amd64.deb || { echo "Failed to install packages"; exit 1; }
+fi
 
 # Configure the CA
 
 ## Make the CA directory
+echo "INFO: Creating CA directory: $ca_dir"
 mkdir -p $ca_dir
 
 ## Initialize the CA
+echo "INFO: Initializing CA"
 cd $ca_dir
 
-step ca init --name "$ca_name" --dns "$ca_dns" --address ":$ca_ipport" --provisioner "$ca_email" --password-file <(echo -n "$ca_password") --ssh
+echo "INFO: Setting up CA"
+step ca init --name "$ca_name" --dns "$ca_dns" --address "$ca_ipport" --provisioner "$ca_email" --password-file <(echo -n "$ca_password") --ssh
 
 
 # Firewall Configuration
@@ -147,15 +158,29 @@ for CIDR in $ca_nets; do
     ufw allow from $CIDR to any port 443 proto tcp
 done
 
+## Enable UFW
+ufw enable
+
 # SystemD
 ## Create a systemd service for the CA
+echo "INFO: Creating systemd service for CA"
 cp step-ca.service /etc/systemd/system/step-ca.service
+
+echo "INFO: Enabling and starting CA"
 systemctl enable step-ca
+
+echo "INFO: Starting CA"
 systemctl start step-ca
+
+echo "INFO: Status of CA"
 systemctl status step-ca
 
 # NGINX
+echo "INFO: Configuring NGINX"
 cp $ca_dir/certs/root_ca.crt /var/www/html/$ca_dns_ca.crt
+
+# Set permissions
+echo "INFO: Setting permissions"
 chmod 444 /var/www/html/$ca_dns_ca.crt
 
 # Summary
