@@ -107,4 +107,3 @@ Once the CA is set up, clients can request a certificate from the CA. Here's how
 
    Remember to replace ca.example.com and client.example.com with the actual FQDNs of your CA server and client machine, respectively.
 
- 

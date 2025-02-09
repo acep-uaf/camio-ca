@@ -3,6 +3,8 @@ Description=step-ca service
 After=network.target
 
 [Service]
+Environment="STEPPATH=/etc/step-ca"
+Environment="STEP_ROOT=/etc/step-ca/certs/root_ca.crt"
 ExecStart=/usr/bin/step-ca /etc/step-ca/config/ca.json --password-file=/etc/step-ca/pwfile
 User=root
 Group=root

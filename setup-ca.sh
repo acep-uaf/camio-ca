@@ -237,6 +237,8 @@ if [ "$enable_acme" == "true" ]; then
   echo ""
   STEP_ROOT=$ca_dir/certs/root_ca.crt STEPPATH=$ca_dir step ca provisioner add "ACME-$ca_org" --type ACME
   echo ""
+
+  systemctl restart step-ca
 fi
 
 
@@ -249,6 +251,36 @@ cp $ca_dir/certs/root_ca.crt "/var/www/html/$ca_dns.crt"
 echo "INFO: Setting permissions"
 echo ""
 chmod 444 /var/www/html/$ca_dns.crt
+
+# // This is not longer needed.  Fixed Vars in step-ca.service
+# Add STEP_ROOT and STEPPATH environment variables to /root/.bashrc if they do not already exist
+# echo "INFO: Verifying STEP_ROOT and STEPPATH environment variables in /root/.bashrc"
+# echo ""
+# is_step=$(grep "Step CA environment variables" /root/.bashrc)
+# is_step_root=$(grep "STEP_ROOT" /root/.bashrc)  # Check if STEP_ROOT is already defined in /root/.bashrc
+# is_step_path=$(grep "STEPPATH" /root/.bashrc)  # Check if STEPPATH is already defined in /root/.bashrc
+
+# update_env=false
+
+# if [ -z "$is_step" ]; then
+#   echo "# Step CA environment variables" >> /root/.bashrc
+#   update_env=true
+# fi
+
+# if [ -z "$is_step_root" ]; then
+#   echo "export STEP_ROOT=$ca_dir/certs/root_ca.crt" >> /root/.bashrc
+#   update_env=true
+# fi
+
+# if [ -z "$is_step_path" ]; then
+#   echo "export STEPPATH=$ca_dir" >> /root/.bashrc
+#   update_env=true
+# fi  
+
+# if $update_env; then
+#   echo "NOTE: restart your shell to pick up STEP_ROOT and STEPPATH environment variables"
+#   echo ""
+# fi
 
 # Summary
 echo "The CA has been successfully setup."
